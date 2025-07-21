@@ -948,9 +948,9 @@ public class InAppBrowser extends CordovaPlugin {
                 settings.setJavaScriptCanOpenWindowsAutomatically(true);
                 settings.setBuiltInZoomControls(showZoomControls);
                 settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
-                
+
                 // download event
-                
+
                 inAppWebView.setDownloadListener(
                     new DownloadListener(){
                         public void onDownloadStart(
@@ -971,7 +971,7 @@ public class InAppBrowser extends CordovaPlugin {
                             }
                         }
                     }
-                );        
+                );
 
                 // Add postMessage interface
                 class JsObject {
@@ -1219,7 +1219,20 @@ public class InAppBrowser extends CordovaPlugin {
                 }
             }
 
-            if (url.startsWith(WebView.SCHEME_TEL)) {
+            if (url.startsWith("https://pay.mironline.ru/") || url.startsWith("mirpay://pay.mironline.ru/")) {
+                try {
+                    // workaround
+                    String deepUrl = url.replace("https://", "mirpay://");
+                    LOG.d(LOG_TAG, "MIR_PAY_URL:  " + deepUrl);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(deepUrl));
+                    cordova.getActivity().startActivity(intent);
+
+                    override = true;
+                } catch (Exception e) {
+                    // можно не обрабатывать, так как все равно откроется URL
+                    LOG.e(LOG_TAG, "Error dialing " + url + ": " + e.toString());
+                }
+            } else (url.startsWith(WebView.SCHEME_TEL)) {
                 try {
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse(url));
