@@ -1232,7 +1232,7 @@ public class InAppBrowser extends CordovaPlugin {
                     // можно не обрабатывать, так как все равно откроется URL
                     LOG.e(LOG_TAG, "Error dialing " + url + ": " + e.toString());
                 }
-            } else (url.startsWith(WebView.SCHEME_TEL)) {
+            } else if (url.startsWith(WebView.SCHEME_TEL)) {
                 try {
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse(url));
