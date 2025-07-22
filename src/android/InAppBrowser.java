@@ -1220,14 +1220,22 @@ public class InAppBrowser extends CordovaPlugin {
             }
 
             if (url.startsWith("https://pay.mironline.ru/") || url.startsWith("mirpay://pay.mironline.ru/")) {
-                try {
-                    // workaround
-                    String deepUrl = url.replace("https://", "mirpay://");
-                    LOG.d(LOG_TAG, "MIR_PAY_URL:  " + deepUrl);
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(deepUrl));
-                    cordova.getActivity().startActivity(intent);
+                // workaround
+                String deepUrl = url.replace("https://", "mirpay://");
+                Intent deepIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(deepUrl));
 
-                    override = true;
+                try {
+                    PackageManager packageManager = cordova.getActivity().getPackageManager();
+                    if (deepIntent.resolveActivity(packageManager) != null) {
+                        LOG.d(LOG_TAG, "Trying to open mirpay deep url in app:  " + deepUrl);
+                        cordova.getActivity().startActivity(deepIntent);
+                        override = true;
+                    } else {
+                        LOG.d(LOG_TAG, "Trying to open mirpay url in browser:  " + deepUrl);
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        cordova.getActivity().startActivity(browserIntent);
+                        override = true;
+                    }
                 } catch (Exception e) {
                     // можно не обрабатывать, так как все равно откроется URL
                     LOG.e(LOG_TAG, "Error dialing " + url + ": " + e.toString());
